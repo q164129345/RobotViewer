@@ -1,200 +1,67 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
-import QtQuick.Window
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 ApplicationWindow {
     visible: true
-    width: 1200
-    height: 800
-    title: qsTr("Robot Tool")
-    ColumnLayout {
-        anchors.fill: parent
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            ColumnLayout {
-                spacing: 5
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
-                Button {
-                    Layout.preferredWidth: 100
-                    onClicked: stackLayout.currentIndex = 0
-                    contentItem: Text {
-                        text: qsTr("首页")
-                        anchors.fill: parent
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 16
-                        anchors.margins: 10
-                    }
-                }
-                Button {
-                    Layout.preferredWidth: 100
-                    onClicked: stackLayout.currentIndex = 1
-                    contentItem: Text {
-                        text: qsTr("传感器")
-                        anchors.fill: parent
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 16
-                        anchors.margins: 10
-                    }
-                }
-                Button {
-                    Layout.preferredWidth: 100
-                    onClicked: stackLayout.currentIndex = 2
-                    contentItem: Text {
-                        text: qsTr("清洁电机")
-                        anchors.fill: parent
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 16
-                        anchors.margins: 10
-                    }
-                }
-                Button {
-                    Layout.preferredWidth: 100
-                    onClicked: stackLayout.currentIndex = 3
-                    contentItem: Text {
-                        text: qsTr("轮毂电机")
-                        anchors.fill: parent
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 16
-                        anchors.margins: 10
-                    }
-                }
-                Button {
-                    Layout.preferredWidth: 100
-                    onClicked: stackLayout.currentIndex = 4
-                    contentItem: Text {
-                        text: qsTr("充电桩")
-                        anchors.fill: parent
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 16
-                        anchors.margins: 10
-                    }
-                }
-            }
-            StackLayout {
-                id: stackLayout
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                currentIndex: 0
-                Rectangle {
-                    color: "#00B000"
-                    Text {
-                        text: qsTr("首页")
-                        anchors.centerIn: parent
-                        font.pixelSize: 24
-                    }
-                }
-                Rectangle {
-                    color: "steelblue"
-                    Text {
-                        text: qsTr("传感器")
-                        anchors.centerIn: parent
-                        font.pixelSize: 24
-                    }
-                }
-                Rectangle {
-                    color: "lightgrey"
-                    Text {
-                        text: qsTr("清洁电机")
-                        anchors.centerIn: parent
-                        font.pixelSize: 24
-                    }
-                }
-                Rectangle {
-                    color: "lightgrey"
-                    Text {
-                        text: qsTr("轮毂电机")
-                        anchors.centerIn: parent
-                        font.pixelSize: 24
-                    }
-                }
-                Rectangle {
-                    color: "lightgrey"
-                    Text {
-                        text: qsTr("充电桩")
-                        anchors.centerIn: parent
-                        font.pixelSize: 24
-                    }
-                }
-            }
+    width: 400
+    height: 300
+    title: "MQTT 客户端"
+
+    Column {
+        anchors.centerIn: parent
+        spacing: 10
+
+        // MQTT 服务器地址
+        TextField {
+            id: serverInput
+            placeholderText: "MQTT 服务器地址"
         }
-        RowLayout {
-            Layout.fillHeight:  true
-            Layout.preferredHeight: 20
-            spacing: 20
-            Item {
-                width: 1
-                height: 1
-                Layout.alignment: Qt.AlignLeft
-            }
-            Rectangle{
-                id: ledIndicator
-                width: 15
-                height: 15
-                radius: 7.5
-                color: "red"
-                Layout.alignment: Qt.AlignLeft
-            }
-            Text {
-                text: qsTr("IP:")
-                Layout.alignment: Qt.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-            }
-            TextField {
-                id: brokerIp
-                text: "127.0.0.1"
-                placeholderText: qsTr("broker IP")
-                Layout.preferredWidth: 130
-                Layout.alignment: Qt.AlignLeft
-            }
-            Text {
-                text: qsTr("Port:")
-                Layout.alignment: Qt.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-            }
-            TextField {
-                id: brokerPort
-                text: "1883"
-                placeholderText: qsTr("port")
-                Layout.preferredWidth: 80
-                Layout.alignment: Qt.AlignLeft
-            }
-            Button {
-                id: connectButton
-                text: qsTr("连接")
-                Layout.alignment: Qt.AlignLeft
-                onClicked: {
-                    if (mqttClient.getConnectionStatus() === false) {
-                        var ip = brokerIp.text;
-                        var port = parseInt(brokerPort.text);
-                        mqttClient.connectToHost(ip, port);
-                        console.log("connectToHost:",mqttClient.getConnectionStatus());
-                    } else {
-                        mqttClient.disconnectFromHost();
-                        console.log("disconnectfromHost:",mqttClient.getConnectionStatus());
-                    }
-                }
-            }
+
+        // 连接按钮
+        Button {
+            text: "连接"
+            onClicked: mqttClient.connectToServer(serverInput.text, 1883)
+        }
+
+        // 主题输入
+        TextField {
+            id: topicInput
+            placeholderText: "主题"
+        }
+
+        // 消息内容输入
+        TextField {
+            id: messageInput
+            placeholderText: "消息内容"
+        }
+
+        // 发布按钮
+        Button {
+            text: "发布消息"
+            onClicked: mqttClient.publishMessage(topicInput.text, messageInput.text)
+        }
+
+        // 订阅按钮
+        Button {
+            text: "订阅主题"
+            onClicked: mqttClient.subscribeTopic(topicInput.text)
+        }
+
+        // 日志显示区域
+        TextArea {
+            id: logArea
+            readOnly: true
+            height: 150
+            width: parent.width
+            placeholderText: "接收的消息将显示在这里"
         }
     }
 
+    // 信号接收并显示消息
     Connections {
         target: mqttClient
-        function onConnectionStatusChanged(state) {
-            if (state === 1) {
-                ledIndicator.color = "green";
-                connectButton.text = qsTr("断开连接");
-            } else if (state === 0) {
-                ledIndicator.color = "red";
-                connectButton.text = qsTr("连接");
-            }
+        onMessageReceived: {
+            logArea.text += "收到消息: 主题='" + topic + "', 内容='" + message + "'\n"
         }
     }
 }
